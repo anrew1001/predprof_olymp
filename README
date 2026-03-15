@@ -1,0 +1,23 @@
+Backend (FastAPI):
+
+
+cd backend && pip install -r requirements.txt && uvicorn app.main:app --reload --port 8000
+Frontend (React + Vite):
+
+
+cd frontend && npm install && npm run dev
+Тесты:
+
+
+# Backend (pytest)
+cd backend && pytest tests/ -v
+
+# Frontend (vitest)
+cd frontend && npx vitest run
+DB (SQLite) — автоматически создаётся в db/app.db при первом запуске backend
+
+Обычный workflow:
+
+Запусти backend (один терминал)
+Запусти frontend (другой терминал)
+Open http://localhost:5173 (frontend) → подключится к backend на http://localhost:8000
