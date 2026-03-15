@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Администратор</title>
+    <link rel="stylesheet" href="auth-style.css">
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+    <header>
+        <h1>Администратор</h1>
+    </header>
+    <main>
+        <div class="auth-window">
+            <h2>Создание нового пользователя</h2>
+            <form action="/create-user" method="POST">
+                <p>Имя: <input type="text" name="firstname" required></p>
+                <p>Фамилия: <input type="text" name="lastname" required></p>
+                <p>Логин: <input type="text" name="login" required></p>
+                <p>Пароль: <input type="password" name="password" required></p>
+                <button type="submit" class="submit-btn">Создать пользователя</button>
+            </form>
+            <form action="/" method="GET" style="margin-top: 15px;">
+                <button type="submit">Выйти</button>
+            </form>
+        </div>
+    </main>
+    <script src="admin-script.js"></script>
+</body>
+</html>
