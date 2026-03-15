@@ -12,8 +12,15 @@ def auth():
         login = request.form.get('login')
         password = request.form.get('password')
 
-        return redirect(url_for('admin-page'))
-    
+        return redirect(url_for('user_page', username=login))
+
+
+@app.route('/user_page', methods=['GET',])
+def user_page():
+    return render_template('user-page.html')
+
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    import os
+
+    app.run(debug=os.environ.get('FLASK_DEBUG', 'false').lower() == 'true')

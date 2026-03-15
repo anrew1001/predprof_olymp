@@ -18,12 +18,11 @@
     <main>
         <div id="load-data">
             <h2>Загрузить данные в модель</h2>
-            <form class="send-data">
+            <form class="send-data" method="POST" enctype="multipart/form-data">
                 <label for="data">Выбрать файл</label>
-                <input type="file" accept=".npz" name="data">
+                <input type="file" accept=".npz" name="data" id="data">
                 <button type="submit">Загрузить</button>
-            </form>
-        </div>
+            </form>        </div>
         <div id="show-analytics">
             <h2>Просмотреть аналитику</h2>
             <!-- Сюда потом вставлю все графики -->
