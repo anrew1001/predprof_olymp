@@ -67,7 +67,7 @@ form{
     gap: 15px;
 }
 
-form>p{
+form>label{
     color: white;
     font-size: 20px;
 }

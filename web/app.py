@@ -16,5 +16,4 @@ def auth():
     
 
 if __name__ == '__main__':
-    # app.run(debug=<включить режим отладки?>)
     app.run(debug=True)

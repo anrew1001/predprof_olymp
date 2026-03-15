@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пользователь {{ username }}</title>
+    <link href="../static/user-page-style.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Пользователь {{ username }}</h1>
+    </header>
+    <nav>
+        <h2>Навигация</h2>
+        <a href="#load-data">Загрузить данные для модели</a>
+        <a href="#show-analytics">Просмотреть аналитику</a>
+    </nav>
+    <main>
+        <div id="load-data">
+            <h2>Загрузить данные в модель</h2>
+            <form class="send-data">
+                <label for="data">Выбрать файл</label>
+                <input type="file" accept=".npz" name="data">
+                <button type="submit">Загрузить</button>
+            </form>
+        </div>
+        <div id="show-analytics">
+            <h2>Просмотреть аналитику</h2>
+            <!-- Сюда потом вставлю все графики -->
+        </div>
+    </main>
+</body>
+</html>
