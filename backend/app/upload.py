@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from pydantic import BaseModel
 
 from app.auth import require_user
-from app.inference import get_model, predict_batch
+from app.inference import get_model, predict_batch, preprocess_batch
 from app.models import User
 
 router = APIRouter(prefix="/upload", tags=["upload"])
@@ -73,10 +73,11 @@ async def upload_test(
 ) -> TestResult:
     """
     Accept a .npz file with keys:
-      - 'X': float32 array (N, 128, 128, 1) — pre-processed mel spectrograms
-      - 'y': int array   (N,) — true labels
+      - 'test_x': float32 array (N, 80000, 1) — raw audio waveforms
+      - 'test_y': int array (N,) — true labels
 
-    Returns accuracy, loss, and per-sample results.
+    Preprocesses audio → mel spectrograms (64, 128, 1), runs inference,
+    returns accuracy, loss, and per-sample results.
     """
     model = get_model()
     if model is None:
@@ -93,40 +94,44 @@ async def upload_test(
 
     contents = await file.read()
     try:
-        npz = np.load(io.BytesIO(contents))
+        npz = np.load(io.BytesIO(contents), allow_pickle=True)
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"Cannot read .npz file: {exc}",
         ) from exc
 
-    if "X" not in npz or "y" not in npz:
+    if "test_x" not in npz or "test_y" not in npz:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=".npz must contain 'X' (features) and 'y' (labels) arrays",
+            detail=".npz must contain 'test_x' and 'test_y' arrays",
         )
 
-    X: np.ndarray = npz["X"].astype(np.float32)
-    y: np.ndarray = npz["y"].astype(np.int32)
+    test_x: np.ndarray = npz["test_x"].astype(np.float32)
+    test_y: np.ndarray = npz["test_y"].astype(np.int32).ravel()
 
-    if X.ndim != 4 or X.shape[1:] != (128, 128, 1):
+    # Validate shapes
+    if test_x.ndim != 3 or test_x.shape[1:] != (80000, 1):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"X must have shape (N, 128, 128, 1), got {X.shape}",
+            detail=f"test_x must have shape (N, 80000, 1), got {test_x.shape}",
         )
-    if y.ndim != 1 or len(X) != len(y):
+    if test_y.ndim != 1 or len(test_x) != len(test_y):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="y must be 1-D with the same length as X",
+            detail="test_y must be 1-D with the same length as test_x",
         )
 
-    raw_predictions = predict_batch(X)
-    accuracy, loss, per_sample = _compute_metrics(y, raw_predictions)
+    # Preprocess raw audio → mel spectrograms (N, 64, 128, 1)
+    features = preprocess_batch(test_x)
+
+    raw_predictions = predict_batch(features)
+    accuracy, loss, per_sample = _compute_metrics(test_y, raw_predictions)
 
     return TestResult(
         accuracy=accuracy,
         loss=loss,
-        total_samples=len(y),
+        total_samples=len(test_y),
         correct_samples=sum(s.correct for s in per_sample),
         per_sample=per_sample,
     )
